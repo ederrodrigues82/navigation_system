@@ -1,0 +1,6 @@
+rospy
+adafruit-circuitpython-vl53l0x
+adafruit-circuitpython-bno08x
+sensor-msgs
+board
+busio

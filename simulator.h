@@ -5,6 +5,7 @@
 extern int step;  // global step variable
 
 #define SCAN_LENGHT  100
-double get_next_r();
+int get_next_r_theta(double* r, double* theta);
+int get_position(double* pos_x, double* pos_y, double* pitch, double* roll, double* yaw);
 
 #endif // SIMULATOR_H

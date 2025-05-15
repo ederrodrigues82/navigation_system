@@ -1,5 +1,16 @@
 {
     "files.associations": {
-        "cmath": "c"
+        "cmath": "c",
+        "format": "c",
+        "istream": "c",
+        "memory": "c",
+        "tuple": "c",
+        "type_traits": "c",
+        "utility": "c",
+        "xlocmes": "c",
+        "xlocmon": "c",
+        "xlocnum": "c",
+        "xloctime": "c",
+        "xutility": "c"
     }
 }

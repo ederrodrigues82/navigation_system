@@ -6,9 +6,12 @@ SIZE = 1412
 SCAN_LENGHT = 100
 
 def main():
-    x_values = []
-    y_values = []
-    #Read irda values from file
+    irda_x_values = []
+    irda_y_values = []
+    pos_x_values = []
+    pos_y_values = []
+    
+    #Read irda and pos values from file
     with open("rasp_i2c_in_file.txt", "r") as file:
         for line in file:
             # Remove extra whitespace and split the line
@@ -16,12 +19,18 @@ def main():
 
             if line.startswith("#irda_scans_x"):
                 # Remove label and split numbers
-                x_values = [float(val) for val in line.replace("#irda_scans_x:", "").split()]
+                irda_x_values = [float(val) for val in line.replace("#irda_scans_x:", "").split()]
 
             elif line.startswith("#irda_scans_y"):
-                y_values = [float(val) for val in line.replace("#irda_scans_y:", "").split()]
+                irda_y_values = [float(val) for val in line.replace("#irda_scans_y:", "").split()]
+                
+            elif line.startswith("#pos_scans_x"):
+                pos_x_values = [float(val) for val in line.replace("#pos_scans_x:", "").split()]
+                
+            elif line.startswith("#pos_scans_y"):
+                pos_y_values = [float(val) for val in line.replace("#pos_scans_y:", "").split()]
 
-    cartesian_plot(x_values, y_values)
+    cartesian_plot(irda_x_values, irda_y_values, pos_x_values, pos_y_values)
 
 def polar_plot(angles, radius):
     
@@ -34,16 +43,22 @@ def polar_plot(angles, radius):
     plt.title("Polar cordinates graph")
     plt.show()
     
-def cartesian_plot(x_values, y_values):
-    # Plot the points
-    plt.plot(x_values, y_values, marker='o')  # Line plot with points
+def cartesian_plot(irda_x_values, irda_y_values, pos_x_values, pos_y_values):
+    # Plot IRDA points in green
+    plt.scatter(irda_x_values, irda_y_values, color='blue', marker='o', label='IRDA')
 
-    # Labels and grid
+    # Plot POS points in blue
+    plt.scatter(pos_x_values, pos_y_values, color='red', marker='x', label='POS')
+
+    # Labels, grid, legend
     plt.xlabel("X-axis")
     plt.ylabel("Y-axis")
-    plt.title("Cartesian Graph")
+    plt.title("Dynamic Map")
     plt.grid(True)
-    plt.show()
+    plt.legend()
+
+    # Keep chart open
+    plt.show(block=True)
 
 if __name__ == "__main__":
     main()

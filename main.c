@@ -6,40 +6,45 @@
 
 int send_i2c(char* message);
 void print_irda(double *irda);
-int send_irda_scan(double* irda_x_values, double* irda_y_values, int size);
+int erase_i2c_file();
 int convert_to_polar(double x, double y, double* r, double* theta);
 int convert_to_cartesian(double r, double theta, double* x, double* y );
 int get_position(double* pos_x, double* pos_y, double* pitch, double* roll, double* yaw);
+int send_measures(double* x_values, double* y_values, int size, char* x_tag, char* y_tag);
+
 
 int main() {
-    step = 0;
     double irda_x_values[SCAN_LENGHT] = {0};
     double irda_y_values[SCAN_LENGHT] = {0};
+    double pos_x_values[SCAN_LENGHT] = {0};
+    double pos_y_values[SCAN_LENGHT] = {0};
+    double pos_pitch_values[SCAN_LENGHT] = {0};
+    double pos_roll_values[SCAN_LENGHT] = {0};
+    double pos_yaw_values[SCAN_LENGHT] = {0};        
     double irda_r;
     double irda_theta;
-    double pos_x;
-    double pos_y;
-    double pitch;
-    double roll;
-    double yaw;
     double irda_pos_x;
     double irda_pos_y;
     int index = 0;
 
+    step = 0;
+    erase_i2c_file();
+    
     do {
         get_next_r_theta(&irda_r, &irda_theta);
-        if (irda_r != -1) {
-            get_position(&pos_x, &pos_y, &pitch, &roll, &yaw);        
+        get_position(&pos_x_values[step], &pos_y_values[step], &pos_pitch_values[step], &pos_roll_values[step], &pos_yaw_values[step]); 
+        if (irda_r != -1) {                   
             convert_to_cartesian(irda_r, irda_theta, &irda_pos_x, &irda_pos_y);
-            irda_x_values[index] = pos_x + irda_pos_x;
-            irda_y_values[index] = pos_y+ irda_pos_y;
+            irda_x_values[index] = pos_x_values[step] + irda_pos_x;
+            irda_y_values[index] = pos_x_values[step] + irda_pos_y;
             index++;            
         }
         
         step++;
         
         if (step > SCAN_LENGHT - 1) {
-            send_irda_scan(irda_x_values, irda_y_values, index);
+            send_measures(irda_x_values, irda_y_values, index, "#irda_scans_x:", "#irda_scans_y:");
+            send_measures(pos_x_values, pos_y_values, index, "#pos_scans_x:", "#pos_scans_y:");
         }
         
     } while (step < SCAN_LENGHT);
@@ -59,25 +64,27 @@ int convert_to_cartesian(double r, double theta, double* x, double* y ) {
     return 0;
 }
 
-int send_irda_scan(double* irda_x_values, double* irda_y_values, int size) {
-    char message[4000] = "#irda_scans_x:";
+int send_measures(double* x_values, double* y_values, int size, char* x_tag, char* y_tag) {
+    char message[4000] = "";
     char buffer[32];  // Temporary buffer for each string fragment
     
+    strcpy(message, x_tag);
     for (int i = 0; i < size; i++)
     {
-        if (irda_x_values)
-        sprintf(buffer, " %8.3f", irda_x_values[i]);  // Format each index
+        if (x_values)
+        sprintf(buffer, " %8.3f", x_values[i]);  // Format each index
         strcat(message, buffer);          // Append to result string
     }
 
-    strcat(message, "\n#irda_scans_y: ");
+    strcat(message, "\n");
+    strcat(message, y_tag);
     for (int i = 0; i < size; i++)
     {
-        sprintf(buffer, " %8.3f", irda_y_values[i]);  // Format each index
+        sprintf(buffer, " %8.3f", y_values[i]);  // Format each index
         strcat(message, buffer);          // Append to result string
     }
     send_i2c(message);
-    print_irda(irda_x_values);
+    print_irda(x_values);
     
     return(0);
 }
@@ -93,7 +100,7 @@ int send_position(double pos_x, double pos_y, double pitch, double roll, double 
 }
 
 int send_i2c(char* message) {
-    FILE *file = fopen("rasp_i2c_in_file.txt", "w");  // Open file for writing
+    FILE *file = fopen("rasp_i2c_in_file.txt", "a");  // Open file for writing
     if (file == NULL) {
         perror("Error opening file");
         return 1;
@@ -102,6 +109,17 @@ int send_i2c(char* message) {
     fprintf(file, "%s\n", message);  // Write string to file
     fclose(file);  // Close file
     return(0);
+}
+
+int erase_i2c_file() {
+    FILE *file = fopen("rasp_i2c_in_file.txt", "w");  // Truncate the file
+    if (file == NULL) {
+        perror("Error erasing file");
+        return 1;
+    }
+
+    fclose(file);  // Immediately close to apply truncation
+    return 0;
 }
 
 void print_irda(double *irda_r) {

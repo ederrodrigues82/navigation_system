@@ -1,0 +1,4 @@
+[submodule "hardware/navigation_system_STM32"]
+	path = hardware/navigation_system_STM32
+	url = git@github.com:ederrodrigues82/navigation_system_STM32.git
+	branch = sync_m_status

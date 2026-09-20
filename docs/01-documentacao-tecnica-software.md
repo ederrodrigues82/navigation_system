@@ -187,6 +187,8 @@ Diretório: `hardware/navigation_system_STM32/Raspi/`.
 | Arquivo | Função |
 |---------|--------|
 | `main.py` | Cliente UART, dashboard Rich, teste de movimento 30 pulsos |
+| `dashboard.py` | UI web: mapa de cobertura em zigue-zague + telemetria STM32 |
+| `coverage_map.py` | Grade do gramado e caminho boustrophedon (demo até a missão no firmware) |
 | `uart_client.py` | pyserial (`/dev/ttyS0` no Pi Zero W, `/dev/ttyAMA0` em Pi 3/4/5) |
 | `flat_lawn_mower_status.py` | Unpack da struct |
 | `test_right_wheel.py` | Suíte de pulsos da roda direita |
@@ -266,7 +268,7 @@ Não está ligado ao protocolo UART do STM32. Trate como caminho experimental de
 1. Clone o repo. Para o simulador: `gcc` + `make`; `pip install matplotlib` (venv na raiz).
 2. Firmware: STM32CubeIDE ou Makefile do projeto em `hardware/navigation_system_STM32`. MCU **STM32F103C8Tx** (Blue Pill) ou **STM32F103RBT6** (IoT-Interface) — não misture o linker script.
 3. Flash: ST-Link **ou** `flash_stm32.py` pelo Pi (placa IoT-Interface, jumpers P3 em Ctrl).
-4. No Pi: UART habilitada, usuário em `dialout`/`gpio`, `python3 Raspi/main.py`.
+4. No Pi: UART habilitada, usuário em `dialout`/`gpio`. Dashboard de cobertura: `python Raspi/dashboard.py` (http://raspberry:8080). Tabela Rich: `python Raspi/main.py`.
 5. Confirme PING antes de MOVE. Use emulação de encoder até a mecânica da roda esquerda existir. Lâmina desconectada em qualquer teste de tração.
 6. Qualquer mudança em `flat_lawn_mower_status` exige rebuild C **e** ajuste do `struct` Python.
 
